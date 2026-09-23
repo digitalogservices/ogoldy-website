@@ -1,0 +1,153 @@
+export type Project = {
+  slug: string;
+  client: string;
+  title: string;
+  location: string;
+  sector: string;
+  summary: string;
+  facts: string[];
+  scope: string[];
+  outcome: string;
+  image: string;
+  imageAlt: string;
+  featured?: boolean;
+};
+
+export const projects: Project[] = [
+  {
+    slug: "topsoe-faridabad-office-transition",
+    client: "Topsoe",
+    title: "Five-floor office transition and value recovery",
+    location: "Faridabad",
+    sector: "Corporate office",
+    summary: "A 106,000 sq ft, five-floor office transition connecting movement, reuse, employee sale, liquidation and bare-shell reinstatement.",
+    facts: ["106,000 sq ft", "5 floors", "Office transition"],
+    scope: ["Survey and site assessment", "Packing and selected-asset movement", "Internal movement and reuse", "Employee-sale support", "Surplus-asset liquidation", "Bare-shell reinstatement"],
+    outcome: "One coordinated programme managed the physical transition and multiple value-recovery routes without splitting responsibility across separate vendors.",
+    image: "/editorial/topsoe-faridabad-office-decommissioning.webp",
+    imageAlt: "Editorial view of a multi-floor corporate office transition",
+    featured: true,
+  },
+  {
+    slug: "decathlon-pan-india-asset-transition",
+    client: "Decathlon",
+    title: "Multi-city custody, movement and redeployment",
+    location: "Pan-India",
+    sector: "Retail network",
+    summary: "A connected asset workflow spanning store survey, dismantling, packing, movement, insured custody, identification, redeployment and reconciliation.",
+    facts: ["Multi-city", "Insured custody", "Pallet-wise identification"],
+    scope: ["Survey and catalogue", "Dismantling and packing", "Loading and transport", "Custody and insurance", "Inventory reconciliation", "Internal redeployment", "Resale, liquidation and scrap disposal"],
+    outcome: "Assets remained visible through custody and could be identified, dispatched, received and reconciled for later use.",
+    image: "/editorial/decathlon-pan-india-reverse-logistics.webp",
+    imageAlt: "Editorial map of a multi-city asset custody and redeployment network",
+    featured: true,
+  },
+  {
+    slug: "asian-development-bank-delhi-transition",
+    client: "Asian Development Bank",
+    title: "Phased institutional asset transition",
+    location: "Chanakyapuri, New Delhi",
+    sector: "Institutional office",
+    summary: "A four-floor, phased programme covering more than 10,000 assets, with completion scheduled for June 2027.",
+    facts: ["4 floors", "10,000+ assets", "Phased to June 2027"],
+    scope: ["Survey and cataloguing", "Dismantling and packing", "Floor-wise removal", "Loading and transport", "Resale and liquidation", "Scrap disposal", "Bare-shell reinstatement", "Temporary custody", "Documentation and reconciliation"],
+    outcome: "The programme demonstrates a single accountable chain for a large institutional site while work continues in planned phases.",
+    image: "/editorial/lifecycle.webp",
+    imageAlt: "Editorial enterprise asset transition workflow from survey to close-out",
+    featured: true,
+  },
+  {
+    slug: "spar-retail-asset-transition",
+    client: "SPAR",
+    title: "Retail de-fitment and reusable-asset custody",
+    location: "India",
+    sector: "Retail",
+    summary: "Retail scopes combining controlled dismantling with preservation of reusable assets where immediate disposal was not the right outcome.",
+    facts: ["Retail sites", "Reusable assets", "Custody pathway"],
+    scope: ["Site survey", "Fixture and equipment dismantling", "Packing", "Asset segregation", "Containerised custody where required", "Handover documentation"],
+    outcome: "Reusable equipment retained an onward-use option while site works and handover remained controlled.",
+    image: "/editorial/spar-container-asset-custody.webp",
+    imageAlt: "Editorial view of organised reusable retail assets held in custody",
+    featured: true,
+  },
+  {
+    slug: "landmark-chennai-racking-liquidation",
+    client: "Landmark Group",
+    title: "Warehouse racking dismantling under difficult conditions",
+    location: "Chennai",
+    sector: "Warehouse",
+    summary: "Approximately 500 tonnes of warehouse material handled through dismantling, removal, loading, liquidation and scrap sale.",
+    facts: ["Approx. 500 tonnes", "Top-floor work", "Extreme-heat conditions"],
+    scope: ["Labour-intensive rack dismantling", "Removal and loading", "Recoverable-material segregation", "Liquidation", "Scrap sale"],
+    outcome: "A demanding warehouse environment was connected to an organised recovery route rather than treated as an undifferentiated clearance job.",
+    image: "/editorial/landmark-chennai-racking-liquidation.webp",
+    imageAlt: "Editorial view of heavy warehouse racking dismantling and segregated recovery lots",
+  },
+  {
+    slug: "mtc-racking-transition",
+    client: "MTC",
+    title: "Racking dismantling, logistics and liquidation",
+    location: "India",
+    sector: "Industrial / warehouse",
+    summary: "An integrated execution covering racking dismantling, removal, loading, transport and liquidation.",
+    facts: ["Industrial racking", "Transport included", "Liquidation route"],
+    scope: ["Dismantling", "Removal", "Loading", "Transport", "Liquidation"],
+    outcome: "Physical execution and downstream value recovery were managed through one operating chain.",
+    image: "/editorial/mtc-ford-racking-redeployment.webp",
+    imageAlt: "Editorial view of dismantled industrial racking prepared for onward movement",
+  },
+  {
+    slug: "rbl-office-relocation",
+    client: "RBL",
+    title: "Enterprise office relocation support",
+    location: "India",
+    sector: "Banking office",
+    summary: "A corporate relocation requirement managed around asset identification, controlled movement and destination handover.",
+    facts: ["Office relocation", "Asset control", "Documented handover"],
+    scope: ["Requirement review", "Asset identification", "Packing and movement planning", "Destination coordination", "Handover documentation"],
+    outcome: "The work illustrates Ogoldy's office-relocation capability without positioning the service as household moving.",
+    image: "/editorial/topsoe-faridabad-office-decommissioning.webp",
+    imageAlt: "Editorial view of an enterprise office relocation programme",
+  },
+  {
+    slug: "bandhan-bank-branch-transition",
+    client: "Bandhan Bank",
+    title: "Distributed branch asset disposal and reinstatement",
+    location: "Multiple locations",
+    sector: "Branch network",
+    summary: "Multi-branch work across typical 1,000–3,000 sq ft sites, joining local execution with central reporting.",
+    facts: ["Multiple branches", "Typical 1,000–3,000 sq ft", "Branch-wise reconciliation"],
+    scope: ["Survey and cataloguing", "Dismantling", "Branch-wise removal", "Resale and liquidation", "Scrap disposal", "Bare-shell reinstatement", "Temporary custody", "Documentation"],
+    outcome: "Small individual sites were handled as a coordinated distributed-estate programme.",
+    image: "/editorial/lifecycle.webp",
+    imageAlt: "Editorial workflow for distributed branch asset transition",
+  },
+  {
+    slug: "24seven-multi-city-store-transition",
+    client: "24Seven",
+    title: "Multi-city retail-store asset transition",
+    location: "Delhi NCR, Mohali, Chandigarh and Zirakpur",
+    sector: "Retail network",
+    summary: "A distributed programme to survey, dismantle, remove and resolve store assets across several North India markets.",
+    facts: ["4 market clusters", "Store dismantling", "Asset liquidation"],
+    scope: ["Survey and cataloguing", "Dismantling", "Removal", "Resale and liquidation", "Scrap disposal", "Documentation and reconciliation"],
+    outcome: "The project shows how one repeatable operating model can support scattered high-street retail locations.",
+    image: "/editorial/spar-container-asset-custody.webp",
+    imageAlt: "Editorial view of reusable fixtures from a multi-site retail transition",
+  },
+  {
+    slug: "abfrl-pan-india-reverse-logistics",
+    client: "ABFRL",
+    title: "Pan-India reverse logistics and asset lifecycle support",
+    location: "Pan-India",
+    sector: "Retail network",
+    summary: "A distributed retail chain covering store pickup, packing, transport, custody, inventory, redeployment and final value recovery.",
+    facts: ["Pan-India", "Reverse logistics", "Custody to redeployment"],
+    scope: ["Survey and catalogue", "Store pickup and packing", "Transport", "Custody and inventory", "Internal redeployment", "Resale and liquidation", "Scrap disposal", "Documentation"],
+    outcome: "Idle assets could be moved, held, reconciled and directed to their next best use through one chain.",
+    image: "/editorial/decathlon-pan-india-reverse-logistics.webp",
+    imageAlt: "Editorial India-wide reverse logistics and custody network",
+  },
+];
+
+export const getProject = (slug: string) => projects.find((p) => p.slug === slug);

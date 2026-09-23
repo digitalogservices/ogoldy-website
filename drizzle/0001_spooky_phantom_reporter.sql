@@ -1,0 +1,1 @@
+ALTER TABLE `inquiries` ADD `request_hash` text;

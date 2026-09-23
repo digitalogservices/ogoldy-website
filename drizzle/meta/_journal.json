@@ -1,0 +1,27 @@
+{
+  "version": "7",
+  "dialect": "sqlite",
+  "entries": [
+    {
+      "idx": 0,
+      "version": "6",
+      "when": 1789887470375,
+      "tag": "0000_concerned_vertigo",
+      "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "6",
+      "when": 1789889677385,
+      "tag": "0001_spooky_phantom_reporter",
+      "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "6",
+      "when": 1789889693545,
+      "tag": "0002_ambiguous_whirlwind",
+      "breakpoints": true
+    }
+  ]
+}
