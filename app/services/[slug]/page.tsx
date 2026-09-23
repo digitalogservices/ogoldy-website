@@ -72,7 +72,7 @@ export default async function ServicePage({
   const s = getService((await params).slug);
   if (!s) notFound();
   const index = services.findIndex((x) => x.slug === s.slug);
-  const Icon = icons[index];
+  const Icon = icons[index] ?? ScanLine;
   const schema = {
     "@context": "https://schema.org",
     "@type": "Service",
@@ -106,7 +106,7 @@ export default async function ServicePage({
             </div>
             <div className="service-visual">
               <Image
-                src={visuals[index]}
+                src={visuals[index] ?? "/editorial/lifecycle.webp"}
                 alt={`Conceptual visual showing the operating flow for ${s.title.toLowerCase()}`}
                 width={1200}
                 height={1160}

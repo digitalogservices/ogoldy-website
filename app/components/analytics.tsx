@@ -31,12 +31,6 @@ export function Analytics() {
         utm: utm(),
         label,
       };
-      fetch("/api/events", {
-        method: "POST",
-        headers: { "content-type": "application/json" },
-        body: JSON.stringify(payload),
-        keepalive: true,
-      }).catch(() => {});
       window.dataLayer = window.dataLayer || [];
       window.dataLayer.push({
         event: eventName,
