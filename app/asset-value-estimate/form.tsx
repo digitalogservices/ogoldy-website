@@ -5,6 +5,7 @@ import { Upload, CheckCircle2 } from "lucide-react";
 
 export function EstimateForm() {
   const startedAt = useRef(0);
+  const submitting = useRef(false);
   const [status, setStatus] = useState<
     "idle" | "sending" | "success" | "error"
   >("idle");
@@ -17,6 +18,8 @@ export function EstimateForm() {
 
   async function submit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
+    if (submitting.current) return;
+    submitting.current = true;
     setStatus("sending");
     setMessage("");
     const data = new FormData(e.currentTarget);
@@ -24,17 +27,25 @@ export function EstimateForm() {
     data.set("timestamp", new Date().toISOString());
     data.set("landingPage", sessionStorage.getItem("ogoldy_landing") || window.location.pathname);
     data.set("sourcePage", window.location.pathname);
-    data.set("referrer", document.referrer);
-    const query=new URLSearchParams(window.location.search);
-    for(const key of ["source","medium","campaign","content","term"]) data.set(`utm_${key}`,query.get(`utm_${key}`)||"");
-    data.set("formType", "enterprise-enquiry");
-    data.set("decisionToolResult", query.get("decision") || "");
+    data.set("referrer", sessionStorage.getItem("ogoldy_referrer") || document.referrer);
+    const query = new URLSearchParams(window.location.search);
+    for (const key of ["source", "medium", "campaign", "content", "term"])
+      data.set(`utm_${key}`, query.get(`utm_${key}`) || sessionStorage.getItem(`ogoldy_utm_${key}`) || "");
+    const decision = query.get("decision") || "";
+    const formType = decision ? "decision-tool-validation" : window.location.pathname.startsWith("/contact") ? "contact" : "value-estimate";
+    data.set("formType", formType);
+    data.set("decisionToolResult", decision);
+    for (const key of ["boq", "photos"]) {
+      const file = data.get(key);
+      if (file instanceof File && !file.name) data.delete(key);
+    }
     const uploadBytes = [...data.values()]
       .filter((value): value is File => value instanceof File)
       .reduce((total, file) => total + file.size, 0);
     if (uploadBytes > 7_500_000) {
       setMessage("Combined uploads must be under 7.5 MB");
       setStatus("error");
+      submitting.current = false;
       return;
     }
     try {
@@ -46,13 +57,15 @@ export function EstimateForm() {
       }
       document.dispatchEvent(
         new CustomEvent("ogoldy:lead_submitted", {
-          detail: { id: "netlify-form" },
+          detail: { id: "netlify-form", formType, decisionToolResult: decision },
         }),
       );
       setStatus("success");
     } catch {
       setMessage("Submission unavailable");
       setStatus("error");
+    } finally {
+      submitting.current = false;
     }
   }
 
@@ -79,7 +92,7 @@ export function EstimateForm() {
       <input type="hidden" name="utm_campaign" />
       <input type="hidden" name="utm_content" />
       <input type="hidden" name="utm_term" />
-      <input type="hidden" name="formType" value="enterprise-enquiry" />
+      <input type="hidden" name="formType" />
       <input type="hidden" name="timestamp" />
       <input type="hidden" name="decisionToolResult" />
       <div className="honeypot" aria-hidden="true">

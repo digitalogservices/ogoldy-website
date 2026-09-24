@@ -16,12 +16,21 @@ const utm = () =>
   );
 export function Analytics() {
   useEffect(() => {
+    if (sessionStorage.getItem("ogoldy_landing") === null)
+      sessionStorage.setItem("ogoldy_landing", location.pathname);
+    if (sessionStorage.getItem("ogoldy_referrer") === null)
+      sessionStorage.setItem("ogoldy_referrer", document.referrer);
+    const campaign = new URLSearchParams(location.search);
+    for (const key of ["source", "medium", "campaign", "content", "term"]) {
+      const value = campaign.get(`utm_${key}`);
+      if (value) sessionStorage.setItem(`ogoldy_utm_${key}`, value);
+    }
     const session =
       sessionStorage.getItem("ogoldy_session") ||
       (crypto.randomUUID?.() ??
         `${Date.now()}-${Math.random().toString(36).slice(2)}`);
     sessionStorage.setItem("ogoldy_session", session);
-    const send = (eventName: string, label = "", leadId = "") => {
+    const send = (eventName: string, label = "", leadId = "", attributes: Record<string, string> = {}) => {
       const payload = {
         eventName,
         sessionId: session,
@@ -38,6 +47,7 @@ export function Analytics() {
         page_path: location.pathname,
         cta_label: label,
         utm: JSON.parse(payload.utm),
+        ...attributes,
       });
     };
     send("page_view");
@@ -68,7 +78,10 @@ export function Analytics() {
     };
     const submitted = (e: Event) => {
       const d = (e as CustomEvent).detail || {};
-      send("generate_lead", "enterprise enquiry", d.id || "");
+      send("generate_lead", "enterprise enquiry", d.id || "", {
+        form_type: d.formType || "",
+        decision_result: d.decisionToolResult || "",
+      });
     };
     document.addEventListener("click", click);
     document.addEventListener("input", start, { once: true });
