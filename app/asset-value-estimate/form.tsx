@@ -29,8 +29,16 @@ export function EstimateForm() {
     for(const key of ["source","medium","campaign","content","term"]) data.set(`utm_${key}`,query.get(`utm_${key}`)||"");
     data.set("formType", "enterprise-enquiry");
     data.set("decisionToolResult", query.get("decision") || "");
+    const uploadBytes = [...data.values()]
+      .filter((value): value is File => value instanceof File)
+      .reduce((total, file) => total + file.size, 0);
+    if (uploadBytes > 7_500_000) {
+      setMessage("Combined uploads must be under 7.5 MB");
+      setStatus("error");
+      return;
+    }
     try {
-      const res = await fetch("/", { method: "POST", body: data });
+      const res = await fetch("/netlify-forms.html", { method: "POST", body: data });
       if (!res.ok) {
         setMessage("Submission unavailable");
         setStatus("error");
@@ -61,7 +69,7 @@ export function EstimateForm() {
     );
 
   return (
-    <form className="estimate-form" name="ogoldy-enterprise-enquiry" method="POST" encType="multipart/form-data" data-netlify="true" data-netlify-honeypot="bot-field" onSubmit={submit}>
+    <form className="estimate-form" name="ogoldy-enterprise-enquiry" method="POST" action="/netlify-forms.html" encType="multipart/form-data" data-netlify-honeypot="bot-field" onSubmit={submit}>
       <input type="hidden" name="form-name" value="ogoldy-enterprise-enquiry" />
       <input type="hidden" name="landingPage" />
       <input type="hidden" name="sourcePage" />
@@ -233,7 +241,7 @@ export function EstimateForm() {
           <Upload />
           <span>
             <strong>Upload BOQ / asset list</strong>
-            <small>PDF, Excel, Word or CSV. Up to 10 MB.</small>
+            <small>PDF, Excel, Word or CSV. Combined uploads under 7.5 MB.</small>
           </span>
           <input
             type="file"
@@ -245,13 +253,12 @@ export function EstimateForm() {
           <Upload />
           <span>
             <strong>Upload site / asset photos</strong>
-            <small>JPG, PNG or WebP. Up to 5 files.</small>
+            <small>JPG, PNG or WebP. One photo per submission.</small>
           </span>
           <input
             type="file"
             name="photos"
             accept="image/jpeg,image/png,image/webp"
-            multiple
           />
         </label>
       </div>
