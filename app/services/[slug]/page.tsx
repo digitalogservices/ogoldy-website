@@ -77,7 +77,7 @@ export default async function ServicePage({
     "@context": "https://schema.org",
     "@type": "Service",
     name: s.title,
-    provider: { "@type": "Organization", name: "Ogoldy Enterprises" },
+    provider: { "@id": "https://www.ogoldy.com/#organization" },
     areaServed: { "@type": "Country", name: "India" },
     description: s.intro,
   };
@@ -221,7 +221,7 @@ export default async function ServicePage({
       </main>
       <script
         type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(schema) }}
+        dangerouslySetInnerHTML={{ __html: JSON.stringify([schema, ...(s.faq.length ? [{ "@context": "https://schema.org", "@type": "FAQPage", mainEntity: s.faq.map(f => ({ "@type": "Question", name: f.q, acceptedAnswer: { "@type": "Answer", text: f.a } })) }] : [])]) }}
       />
       <SiteFooter />
     </>

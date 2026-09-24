@@ -14,23 +14,10 @@ export const metadata: Metadata = {
 };
 
 export default function About() {
-  const person = {
-    "@context": "https://schema.org",
-    "@type": "Person",
-    name: "Siddharth",
-    jobTitle: "Founder",
-    worksFor: { "@type": "Organization", name: "Ogoldy" },
-    description:
-      "Founder of Ogoldy, with an operating journey spanning Pikkol, logistics, reverse logistics, Ferraille Global and enterprise asset transition.",
-  };
   return (
     <>
       <SiteHeader />
       <main>
-        <script
-          type="application/ld+json"
-          dangerouslySetInnerHTML={{ __html: JSON.stringify(person) }}
-        />
         <PageHero
           eyebrow="About Ogoldy"
           title="Built from the realities of moving, recovering and redeploying assets"

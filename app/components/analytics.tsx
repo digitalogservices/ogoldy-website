@@ -1,5 +1,6 @@
 "use client";
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
+import { usePathname } from "next/navigation";
 declare global {
   interface Window {
     dataLayer?: unknown[];
@@ -15,6 +16,8 @@ const utm = () =>
     ),
   );
 export function Analytics() {
+  const pathname = usePathname();
+  const lastPage = useRef<string | null>(null);
   useEffect(() => {
     if (sessionStorage.getItem("ogoldy_landing") === null)
       sessionStorage.setItem("ogoldy_landing", location.pathname);
@@ -50,13 +53,14 @@ export function Analytics() {
         ...attributes,
       });
     };
-    send("page_view");
     const gtm = "GTM-K9522SR8";
-    const s = document.createElement("script");
-    s.async = true;
-    s.src = `https://www.googletagmanager.com/gtm.js?id=${gtm}`;
-    document.head.appendChild(s);
-    window.dataLayer?.push({ "gtm.start": Date.now(), event: "gtm.js" });
+    if (!document.querySelector(`script[src*="gtm.js?id=${gtm}"]`)) {
+      window.dataLayer?.push({ "gtm.start": Date.now(), event: "gtm.js" });
+      const s = document.createElement("script");
+      s.async = true;
+      s.src = `https://www.googletagmanager.com/gtm.js?id=${gtm}`;
+      document.head.appendChild(s);
+    }
     const click = (e: MouseEvent) => {
       const a = (e.target as Element).closest("a");
       if (!a) return;
@@ -91,5 +95,11 @@ export function Analytics() {
       document.removeEventListener("ogoldy:lead_submitted", submitted);
     };
   }, []);
+  useEffect(() => {
+    if (!pathname || lastPage.current === pathname) return;
+    lastPage.current = pathname;
+    window.dataLayer = window.dataLayer || [];
+    window.dataLayer.push({ event: "page_view", page_path: pathname, utm: JSON.parse(utm()) });
+  }, [pathname]);
   return null;
 }

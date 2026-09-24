@@ -40,11 +40,7 @@ export function RelocationPage({ data }: { data: Data }) {
     name: data.h1,
     serviceType: data.title,
     description: data.description,
-    provider: {
-      "@type": "Organization",
-      name: "Ogoldy",
-      url: "https://ogoldy.com",
-    },
+    provider: { "@id": "https://www.ogoldy.com/#organization" },
     areaServed: { "@type": "Country", name: "India" },
   };
   const faq = {
