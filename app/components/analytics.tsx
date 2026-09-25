@@ -1,97 +1,116 @@
 "use client";
+
 import { useEffect, useRef } from "react";
 import { usePathname } from "next/navigation";
+
 declare global {
   interface Window {
     dataLayer?: unknown[];
-    gtag?: (...args: unknown[]) => void;
   }
 }
-const utm = () =>
-  JSON.stringify(
-    Object.fromEntries(
-      [...new URLSearchParams(location.search)].filter(([k]) =>
-        k.startsWith("utm_"),
-      ),
-    ),
+
+const campaignKeys = ["source", "medium", "campaign", "content", "term"] as const;
+
+// Campaign labels are controlled identifiers, never email addresses or free text.
+function campaign() {
+  const query = new URLSearchParams(location.search);
+  return Object.fromEntries(
+    campaignKeys.flatMap((key) => {
+      const explicit = query.get(`utm_${key}`);
+      if (explicit) sessionStorage.setItem(`ogoldy_utm_${key}`, explicit);
+      const value = explicit || sessionStorage.getItem(`ogoldy_utm_${key}`) || "";
+      return /^[a-z0-9][a-z0-9._-]{0,79}$/i.test(value) && !/^\d{8,}$/.test(value)
+        ? [[`utm_${key}`, value]]
+        : [];
+    }),
   );
+}
+
+function push(event: string, fields: Record<string, string> = {}) {
+  window.dataLayer = window.dataLayer || [];
+  window.dataLayer.push({ event, page_path: location.pathname, ...campaign(), ...fields });
+}
+
+function placement(link: HTMLAnchorElement) {
+  return link.dataset.placement || (link.closest("header") ? "header"
+    : link.closest("footer") ? "footer" : "main");
+}
+
+function referrer() {
+  try {
+    const url = new URL(document.referrer);
+    return `${url.origin}${url.pathname}`;
+  } catch {
+    return "";
+  }
+}
+
 export function Analytics() {
   const pathname = usePathname();
   const lastPage = useRef<string | null>(null);
+
   useEffect(() => {
     if (sessionStorage.getItem("ogoldy_landing") === null)
       sessionStorage.setItem("ogoldy_landing", location.pathname);
     if (sessionStorage.getItem("ogoldy_referrer") === null)
-      sessionStorage.setItem("ogoldy_referrer", document.referrer);
-    const campaign = new URLSearchParams(location.search);
-    for (const key of ["source", "medium", "campaign", "content", "term"]) {
-      const value = campaign.get(`utm_${key}`);
-      if (value) sessionStorage.setItem(`ogoldy_utm_${key}`, value);
-    }
-    const session =
-      sessionStorage.getItem("ogoldy_session") ||
-      (crypto.randomUUID?.() ??
-        `${Date.now()}-${Math.random().toString(36).slice(2)}`);
-    sessionStorage.setItem("ogoldy_session", session);
-    const send = (eventName: string, label = "", leadId = "", attributes: Record<string, string> = {}) => {
-      const payload = {
-        eventName,
-        sessionId: session,
-        leadId,
-        path: location.pathname,
-        referrer: document.referrer,
-        utm: utm(),
-        label,
-      };
-      window.dataLayer = window.dataLayer || [];
-      window.dataLayer.push({
-        event: eventName,
-        lead_id: leadId,
-        page_path: location.pathname,
-        cta_label: label,
-        utm: JSON.parse(payload.utm),
-        ...attributes,
-      });
-    };
+      sessionStorage.setItem("ogoldy_referrer", referrer());
+    const startedForms = new WeakSet<HTMLFormElement>();
     const click = (e: MouseEvent) => {
-      const a = (e.target as Element).closest("a");
-      if (!a) return;
-      const href = a.getAttribute("href") || "";
-      const label = (a.textContent || href).trim();
-      send(
-        href.startsWith("tel:") ? "click_phone"
-          : href.startsWith("mailto:") ? "click_email"
-          : href.includes("wa.me/") ? "click_whatsapp"
-          : href.includes("asset-value-estimate") ? "get_value_estimate"
-          : a.dataset.track === "project_cta" ? "project_case_cta"
-          : "cta_click",
-        label,
-      );
+      const link = (e.target as Element).closest("a");
+      if (!link) return;
+      const href = link.getAttribute("href") || "";
+      const url = new URL(href, location.href);
+      const linkUrl = href.startsWith("mailto:") || href.startsWith("tel:")
+        ? href : `${url.origin}${url.pathname}`;
+      const ctaId = link.dataset.ctaId || (href.startsWith("mailto:") ? "email"
+        : href.startsWith("tel:") ? "phone"
+        : url.hostname === "wa.me" ? "whatsapp"
+        : url.pathname === "/asset-value-estimate" ? "value_estimate" : "");
+      const common = { cta_id: ctaId, placement: placement(link), link_url: linkUrl };
+      if (href.startsWith("mailto:")) push("click_email", common);
+      else if (href.startsWith("tel:")) push("click_phone", common);
+      else if (url.hostname === "wa.me") push("click_whatsapp", common);
+      else if (link.dataset.track === "case_study_cta") {
+        const parts = location.pathname.split("/").filter(Boolean);
+        push("case_study_cta_click", {
+          case_id: `${parts[0]}/${parts[1]}`,
+          cta_id: ctaId || "case_enquiry",
+          destination: url.pathname,
+          placement: placement(link),
+        });
+      } else if (url.pathname === "/asset-value-estimate")
+        push("get_value_estimate", common);
     };
     const start = (e: Event) => {
-      if ((e.target as Element).closest("form"))
-        send("form_start", "enterprise enquiry");
+      const form = (e.target as Element).closest<HTMLFormElement>('form[name="ogoldy-enterprise-enquiry"]');
+      if (!form || startedForms.has(form)) return;
+      startedForms.add(form);
+      push("form_start", { form_type: new URLSearchParams(location.search).has("decision")
+        ? "decision_tool" : location.pathname === "/contact" ? "contact" : "value_estimate" });
     };
     const submitted = (e: Event) => {
-      const d = (e as CustomEvent).detail || {};
-      send("generate_lead", "enterprise enquiry", d.id || "", {
-        form_type: d.formType || "",
-        decision_result: d.decisionToolResult || "",
+      const detail = (e as CustomEvent<{ formType?: string; decisionToolResult?: string }>).detail;
+      if (!detail?.formType) return;
+      push("generate_lead", {
+        form_type: detail.formType,
+        ...(detail.decisionToolResult ? { decision_result: detail.decisionToolResult } : {}),
       });
     };
     document.addEventListener("click", click);
-    document.addEventListener("input", start, { once: true });
+    document.addEventListener("input", start);
     document.addEventListener("ogoldy:lead_submitted", submitted);
     return () => {
       document.removeEventListener("click", click);
+      document.removeEventListener("input", start);
       document.removeEventListener("ogoldy:lead_submitted", submitted);
     };
   }, []);
+
   useEffect(() => {
     if (!pathname || lastPage.current === pathname) return;
     lastPage.current = pathname;
-    window.dataLayer = window.dataLayer || [];
-    window.dataLayer.push({ event: "page_view", page_path: pathname, utm: JSON.parse(utm()) });
+    push("page_view", { page_location: `${location.origin}${pathname}` });
   }, [pathname]);
+
   return null;
 }

@@ -24,17 +24,29 @@ export function EstimateForm() {
     setMessage("");
     const data = new FormData(e.currentTarget);
     data.set("form-name", "ogoldy-enterprise-enquiry");
-    data.set("timestamp", new Date().toISOString());
-    data.set("landingPage", sessionStorage.getItem("ogoldy_landing") || window.location.pathname);
-    data.set("sourcePage", window.location.pathname);
-    data.set("referrer", sessionStorage.getItem("ogoldy_referrer") || document.referrer);
+    data.set("submitted_at", new Date().toISOString());
+    data.set("landing_page", sessionStorage.getItem("ogoldy_landing") || window.location.pathname);
+    data.set("source_page", window.location.pathname);
+    const rawReferrer = sessionStorage.getItem("ogoldy_referrer") || document.referrer;
+    try {
+      const url = new URL(rawReferrer);
+      data.set("referrer", `${url.origin}${url.pathname}`);
+    } catch {
+      data.set("referrer", "");
+    }
     const query = new URLSearchParams(window.location.search);
     for (const key of ["source", "medium", "campaign", "content", "term"])
       data.set(`utm_${key}`, query.get(`utm_${key}`) || sessionStorage.getItem(`ogoldy_utm_${key}`) || "");
-    const decision = query.get("decision") || "";
-    const formType = decision ? "decision-tool-validation" : window.location.pathname.startsWith("/contact") ? "contact" : "value-estimate";
-    data.set("formType", formType);
-    data.set("decisionToolResult", decision);
+    const decision = ({
+      "Continue holding": "hold",
+      Redeploy: "redeploy",
+      "Sell / liquidate": "sell",
+      "Scrap / recycle": "scrap",
+      "Human review required": "human_review",
+    } as Record<string, string>)[query.get("decision") || ""] || "";
+    const formType = decision ? "decision_tool" : window.location.pathname.startsWith("/contact") ? "contact" : "value_estimate";
+    data.set("form_type", formType);
+    data.set("decision_result", decision);
     for (const key of ["boq", "photos"]) {
       const file = data.get(key);
       if (file instanceof File && !file.name) data.delete(key);
@@ -57,7 +69,7 @@ export function EstimateForm() {
       }
       document.dispatchEvent(
         new CustomEvent("ogoldy:lead_submitted", {
-          detail: { id: "netlify-form", formType, decisionToolResult: decision },
+          detail: { formType, decisionToolResult: decision },
         }),
       );
       setStatus("success");
@@ -84,17 +96,17 @@ export function EstimateForm() {
   return (
     <form className="estimate-form" name="ogoldy-enterprise-enquiry" method="POST" action="/netlify-forms.html" encType="multipart/form-data" data-netlify-honeypot="bot-field" onSubmit={submit}>
       <input type="hidden" name="form-name" value="ogoldy-enterprise-enquiry" />
-      <input type="hidden" name="landingPage" />
-      <input type="hidden" name="sourcePage" />
+      <input type="hidden" name="landing_page" />
+      <input type="hidden" name="source_page" />
       <input type="hidden" name="referrer" />
       <input type="hidden" name="utm_source" />
       <input type="hidden" name="utm_medium" />
       <input type="hidden" name="utm_campaign" />
       <input type="hidden" name="utm_content" />
       <input type="hidden" name="utm_term" />
-      <input type="hidden" name="formType" />
-      <input type="hidden" name="timestamp" />
-      <input type="hidden" name="decisionToolResult" />
+      <input type="hidden" name="form_type" />
+      <input type="hidden" name="submitted_at" />
+      <input type="hidden" name="decision_result" />
       <div className="honeypot" aria-hidden="true">
         <label>
           Website

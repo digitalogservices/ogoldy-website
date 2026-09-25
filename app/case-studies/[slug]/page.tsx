@@ -186,7 +186,7 @@ export default async function CasePage({
             <span className="eyebrow">Planning a similar scope?</span>
             <h2>Start with a BOQ, photos or the site requirement.</h2>
           </div>
-          <Link className="button button-primary" href="/asset-value-estimate">
+          <Link className="button button-primary" href="/asset-value-estimate" data-track="case_study_cta" data-cta-id="case_estimate" data-placement="case_final">
             Get an asset value estimate <ArrowRight size={18} />
           </Link>
         </section>

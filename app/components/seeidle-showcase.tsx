@@ -1,6 +1,6 @@
 "use client";
 import Link from "next/link";
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { ArrowRight, Camera, Check, MapPin, PackageCheck, Truck } from "lucide-react";
 
 const workflow=["Capture","Classify / specify","Hold / track","Request / redeploy","Move","Receive","Review economics","Sell / scrap / close"];
@@ -26,11 +26,13 @@ export function SeeIdleShowcase({compact=false}:{compact?:boolean}){
 }
 
 export function AssetDecisionTool(){
-  const [started,setStarted]=useState(false);
+  const started=useRef(false);
+  const lastCompleted=useRef("");
   const [result,setResult]=useState<null|{decision:string;reasons:string[];missing:string[]}>(null);
   function submit(e:React.FormEvent<HTMLFormElement>){
     e.preventDefault();
     const d=new FormData(e.currentTarget);
+    const fingerprint=JSON.stringify([...d.entries()]);
     const n=(k:string)=>Number(d.get(k)||0);
     const condition=String(d.get("condition"));
     const reuse=n("reuseHorizon"), replacement=n("replacementValue"), storage=n("storageCost"), move=n("redeploymentCost"), resale=n("resaleEstimate"), scrap=n("scrapEstimate");
@@ -43,14 +45,20 @@ export function AssetDecisionTool(){
     else if(reuse>0&&reuse<=12&&storage>0&&replacement>0&&storage*reuse<replacement*.25){decision="Continue holding";reasons.push("Expected holding cost to reuse is below 25% of stated replacement value.");}
     else reasons.push("The supplied values do not meet a configured decision threshold, so an operating review is safer.");
     setResult({decision,reasons,missing});
-    window.dataLayer=window.dataLayer||[];
-    window.dataLayer.push({event:"asset_decision_tool_completed",decision});
+    if(lastCompleted.current!==fingerprint){
+      lastCompleted.current=fingerprint;
+      const decisionResult=decision==="Continue holding"?"hold":decision==="Redeploy"?"redeploy":decision==="Sell / liquidate"?"sell":decision==="Scrap / recycle"?"scrap":"human_review";
+      window.dataLayer=window.dataLayer||[];
+      window.dataLayer.push({event:"asset_decision_tool_completed",page_path:location.pathname,tool_version:"1",decision_result:decisionResult});
+    }
+    started.current=false;
   }
-  function start(){
-    if(started)return;
-    setStarted(true);
+  function start(e:React.FormEvent<HTMLFormElement>){
+    if(started.current||!(e.target as HTMLInputElement).value)return;
+    started.current=true;
+    lastCompleted.current="";
     window.dataLayer=window.dataLayer||[];
-    window.dataLayer.push({event:"asset_decision_tool_started"});
+    window.dataLayer.push({event:"asset_decision_tool_started",page_path:location.pathname,tool_version:"1"});
   }
   return <div className="decision-tool"><form onSubmit={submit} onInput={start}><div className="tool-grid">
     <label>Asset / category<input name="asset" required/></label><label>Quantity<input name="quantity" type="number" min="1" required/></label>
