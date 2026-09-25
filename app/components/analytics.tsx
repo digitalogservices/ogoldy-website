@@ -53,14 +53,6 @@ export function Analytics() {
         ...attributes,
       });
     };
-    const gtm = "GTM-K9522SR8";
-    if (!document.querySelector(`script[src*="gtm.js?id=${gtm}"]`)) {
-      window.dataLayer?.push({ "gtm.start": Date.now(), event: "gtm.js" });
-      const s = document.createElement("script");
-      s.async = true;
-      s.src = `https://www.googletagmanager.com/gtm.js?id=${gtm}`;
-      document.head.appendChild(s);
-    }
     const click = (e: MouseEvent) => {
       const a = (e.target as Element).closest("a");
       if (!a) return;
