@@ -89,7 +89,7 @@ export default async function ServicePage({
     <>
       <SiteHeader />
       <main>
-        <section className="service-v6-hero">
+        <section className={`service-v6-hero${s.slug === "bare-shell-reinstatement" ? " bare-shell-hero" : ""}`}>
           <div className="section-shell service-v6-grid">
             <div>
               <span className="service-number">0{index + 1}</span>
