@@ -7,6 +7,17 @@ export type Service = {
   scope: string[];
   process: string[];
   faq: { q: string; a: string }[];
+  seo?: {
+    title: string;
+    meta: string;
+    h1: string;
+    lead: string;
+    sections: { heading: string; text: string }[];
+    proof: { label: string; detail: string; href: string }[];
+    links: { label: string; href: string }[];
+    cta: string;
+    ctaHref?: string;
+  };
 };
 export const services: Service[] = [
   {

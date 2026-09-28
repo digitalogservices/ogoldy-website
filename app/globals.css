@@ -944,3 +944,14 @@ textarea:focus-visible {
   outline: 3px solid var(--gold);
   outline-offset: 3px;
 }
+
+.service-refresh { padding-block: clamp(3rem, 6vw, 6rem); }
+.service-refresh h2 { font-size: clamp(1.45rem, 2.5vw, 2rem); line-height: 1.2; margin: .5rem 0 1rem; }
+.service-refresh h3 { font-size: 1.2rem; margin: 0 0 .65rem; }
+.service-refresh p { line-height: 1.65; }
+.service-refresh-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 270px), 1fr)); gap: 1.25rem; margin-top: 1.5rem; }
+.service-refresh-grid article { min-width: 0; padding: 1.5rem; border: 1px solid #d9d3cc; border-radius: 1rem; }
+.service-refresh a { display: inline-flex; align-items: center; gap: .4rem; color: #944b0c; font-weight: 700; text-decoration: underline; text-underline-offset: .2em; }
+.service-refresh-proof > a { margin-top: 1.5rem; }
+.service-refresh-link-grid { display: flex; flex-wrap: wrap; gap: .8rem 1.4rem; margin-top: 1.5rem; }
+.service-refresh-link-grid a { max-width: 100%; overflow-wrap: anywhere; }

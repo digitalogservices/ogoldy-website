@@ -19,6 +19,7 @@ import {
 import { SiteHeader } from "../../components/site-header";
 import { SiteFooter } from "../../components/site-footer";
 import { getService, services } from "../../data/services";
+import { serviceRefresh, refreshFaq } from "../../data/service-refresh";
 const icons = [
   ScanLine,
   Layers3,
@@ -51,16 +52,17 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   const s = getService((await params).slug);
   if (!s) return {};
+  const refresh = serviceRefresh[s.slug];
   return {
-    title: `${s.title} India | Ogoldy`,
-    description: s.intro,
+    title: refresh?.title ?? `${s.title} India | Ogoldy`,
+    description: refresh?.meta ?? s.intro,
     keywords: s.keywords,
     alternates: { canonical: `/services/${s.slug}` },
-    openGraph: { title: `${s.title} India | Ogoldy`, description: s.intro },
+    openGraph: { title: refresh?.title ?? `${s.title} India | Ogoldy`, description: refresh?.meta ?? s.intro },
     twitter: {
       card: "summary",
-      title: `${s.title} India | Ogoldy`,
-      description: s.intro,
+      title: refresh?.title ?? `${s.title} India | Ogoldy`,
+      description: refresh?.meta ?? s.intro,
     },
   };
 }
@@ -71,7 +73,9 @@ export default async function ServicePage({
 }) {
   const s = getService((await params).slug);
   if (!s) notFound();
+  const refresh = serviceRefresh[s.slug];
   const index = services.findIndex((x) => x.slug === s.slug);
+  const faq = refreshFaq[s.slug] ?? s.faq;
   const Icon = icons[index] ?? ScanLine;
   const schema = {
     "@context": "https://schema.org",
@@ -79,7 +83,7 @@ export default async function ServicePage({
     name: s.title,
     provider: { "@id": "https://www.ogoldy.com/#organization" },
     areaServed: { "@type": "Country", name: "India" },
-    description: s.intro,
+    description: refresh?.lead ?? s.intro,
   };
   return (
     <>
@@ -93,11 +97,11 @@ export default async function ServicePage({
               <span className="eyebrow light">
                 Enterprise service · Pan-India
               </span>
-              <h1>{s.title}</h1>
-              <p>{s.intro}</p>
+              <h1>{refresh?.h1 ?? s.title}</h1>
+              <p>{refresh?.lead ?? s.intro}</p>
               <div className="button-row">
                 <Link className="button button-primary" href="/contact">
-                  Discuss this requirement <ArrowRight size={18} />
+                  {refresh?.cta ?? "Discuss this requirement"} <ArrowRight size={18} />
                 </Link>
                 <a className="service-scroll" href="#scope">
                   See scope <ArrowDown size={16} />
@@ -171,6 +175,19 @@ export default async function ServicePage({
             </div>
           </div>
         </section>
+        {refresh && (
+          <section className="section-shell service-refresh">
+            <span className="eyebrow">Execution approach</span>
+            <div className="service-refresh-grid">
+              {refresh.sections.map((section) => (
+                <article key={section.heading}>
+                  <h2>{section.heading}</h2>
+                  <p>{section.text}</p>
+                </article>
+              ))}
+            </div>
+          </section>
+        )}
         {s.slug === "asset-relocation-redeployment" && (
           <section className="section-shell relocation-intent-links">
             <div>
@@ -195,12 +212,39 @@ export default async function ServicePage({
             </div>
           </section>
         )}
+        {refresh && (
+          <section className="section-shell service-refresh service-refresh-proof">
+            <span className="eyebrow">Verified project scope</span>
+            <h2>Related execution</h2>
+            <div className="service-refresh-grid">
+              {refresh.proof.map((item) => (
+                <article key={item.href}>
+                  <h3>{item.label}</h3>
+                  <p>{item.detail}</p>
+                  <Link href={item.href}>View project <ArrowRight size={16} /></Link>
+                </article>
+              ))}
+            </div>
+            <Link href="/projects/">Explore all projects <ArrowRight size={16} /></Link>
+          </section>
+        )}
+        {refresh && (
+          <section className="section-shell service-refresh service-refresh-links">
+            <span className="eyebrow">Related services and use cases</span>
+            <h2>Plan the next step</h2>
+            <div className="service-refresh-link-grid">
+              {refresh.links.map((item) => (
+                <Link href={item.href} key={item.href}>{item.label} <ArrowRight size={16} /></Link>
+              ))}
+            </div>
+          </section>
+        )}
         <section className="faq-section">
           <div className="section-shell">
             <span className="eyebrow">Useful answers</span>
             <h2>Frequently asked questions</h2>
             <div className="faq-grid">
-              {s.faq.map((f) => (
+              {faq.map((f) => (
                 <article key={f.q}>
                   <h3>{f.q}</h3>
                   <p>{f.a}</p>
@@ -212,16 +256,16 @@ export default async function ServicePage({
         <section className="section-shell final-cta">
           <div>
             <span className="eyebrow">Next step</span>
-            <h2>Send the BOQ, photos or asset list.</h2>
+            <h2>{refresh?.cta ?? "Send the BOQ, photos or asset list."}</h2>
           </div>
-          <Link className="button button-primary" href="/contact">
-            Start an enquiry <ArrowRight size={18} />
+          <Link className="button button-primary" href={refresh?.ctaHref ?? "/contact"}>
+            {refresh?.ctaHref ? "Get an asset value estimate" : "Start an enquiry"} <ArrowRight size={18} />
           </Link>
         </section>
       </main>
       <script
         type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify([schema, ...(s.faq.length ? [{ "@context": "https://schema.org", "@type": "FAQPage", mainEntity: s.faq.map(f => ({ "@type": "Question", name: f.q, acceptedAnswer: { "@type": "Answer", text: f.a } })) }] : [])]) }}
+        dangerouslySetInnerHTML={{ __html: JSON.stringify([schema, ...(faq.length ? [{ "@context": "https://schema.org", "@type": "FAQPage", mainEntity: faq.map(f => ({ "@type": "Question", name: f.q, acceptedAnswer: { "@type": "Answer", text: f.a } })) }] : [])]) }}
       />
       <SiteFooter />
     </>
