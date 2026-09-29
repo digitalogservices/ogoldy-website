@@ -20,8 +20,3 @@
   status = 301
   force = true
 
-[[redirects]]
-  from = "/get-value-estimate/"
-  to = "/asset-value-estimate/"
-  status = 301
-  force = true

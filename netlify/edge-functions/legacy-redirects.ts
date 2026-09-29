@@ -11,8 +11,12 @@ const redirects: Record<string, string> = {
   "/post/key-strategies-for-effective-reverse-logistics-solutions": "/services/managed-asset-custody/",
 };
 
+const gonePaths = new Set(["/blog", "/accessibility-statement"]);
+
 export const config = {
   path: [
+    "/blog",
+    "/accessibility-statement",
     "/services",
     "/about-us",
     "/contact",
@@ -28,6 +32,14 @@ export const config = {
 
 export default function legacyRedirect(request: Request) {
   const source = new URL(request.url);
+  if (gonePaths.has(source.pathname)) {
+    const headers = new Headers();
+    if (source.hostname !== "www.ogoldy.com") {
+      headers.set("X-Robots-Tag", "noindex, nofollow, noarchive");
+    }
+    return new Response(null, { status: 410, headers });
+  }
+
   const destination = redirects[source.pathname];
   if (!destination) return;
 
