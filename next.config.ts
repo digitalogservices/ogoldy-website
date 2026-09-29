@@ -1,7 +1,9 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  /* config options here */
+  // The approved legacy redirects terminate on slash URLs.
+  // Proxy keeps the old slash behavior for all other V9 paths.
+  skipTrailingSlashRedirect: true,
 };
 
 export default nextConfig;
