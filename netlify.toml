@@ -25,3 +25,114 @@
   to = "/asset-value-estimate/"
   status = 301
   force = true
+
+# Approved Wix-to-V9 migration paths. Keep these exact; no catch-all.
+[[redirects]]
+  from = "/services"
+  to = "/services/"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/about-us"
+  to = "/about/"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/contact"
+  to = "/contact/"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/s-projects-side-by-side"
+  to = "/projects/"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/privacy-policy"
+  to = "/privacy/"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/book-online"
+  to = "/contact/"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/post/corporate-scrap-disposal-in-delhi-ncr-a-complete-guide-for-office-relocations-renovations-closur"
+  to = "/services/scrap-disposal-purchase/"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/post/unlocking-efficiency-in-reverse-logistics-management"
+  to = "/services/managed-asset-custody/"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/post/maximize-returns-with-smart-reverse-logistics-practices"
+  to = "/services/managed-asset-custody/"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/post/key-strategies-for-effective-reverse-logistics-solutions"
+  to = "/services/managed-asset-custody/"
+  status = 301
+  force = true
+
+# Serve only the approved slash destinations through the existing V9 routes.
+# Canonicals remain the current slashless V9 canonicals.
+[[redirects]]
+  from = "/services/"
+  to = "/services"
+  status = 200
+  force = true
+
+[[redirects]]
+  from = "/about/"
+  to = "/about"
+  status = 200
+  force = true
+
+[[redirects]]
+  from = "/contact/"
+  to = "/contact"
+  status = 200
+  force = true
+
+[[redirects]]
+  from = "/projects/"
+  to = "/projects"
+  status = 200
+  force = true
+
+[[redirects]]
+  from = "/privacy/"
+  to = "/privacy"
+  status = 200
+  force = true
+
+[[redirects]]
+  from = "/services/scrap-disposal-purchase/"
+  to = "/services/scrap-disposal-purchase"
+  status = 200
+  force = true
+
+[[redirects]]
+  from = "/services/managed-asset-custody/"
+  to = "/services/managed-asset-custody"
+  status = 200
+  force = true
+
+[[redirects]]
+  from = "/asset-value-estimate/"
+  to = "/asset-value-estimate"
+  status = 200
+  force = true
