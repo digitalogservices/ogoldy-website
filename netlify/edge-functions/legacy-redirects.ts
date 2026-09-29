@@ -13,6 +13,23 @@ const redirects: Record<string, string> = {
   "/get-value-estimate/": "/asset-value-estimate/",
 };
 
+export const config = {
+  path: [
+    "/services",
+    "/about-us",
+    "/contact",
+    "/s-projects-side-by-side",
+    "/privacy-policy",
+    "/book-online",
+    "/post/corporate-scrap-disposal-in-delhi-ncr-a-complete-guide-for-office-relocations-renovations-closur",
+    "/post/unlocking-efficiency-in-reverse-logistics-management",
+    "/post/maximize-returns-with-smart-reverse-logistics-practices",
+    "/post/key-strategies-for-effective-reverse-logistics-solutions",
+    "/get-value-estimate",
+    "/get-value-estimate/",
+  ],
+};
+
 export default function legacyRedirect(request: Request) {
   const source = new URL(request.url);
   const destination = redirects[source.pathname];
