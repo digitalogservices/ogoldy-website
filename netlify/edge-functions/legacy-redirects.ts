@@ -9,8 +9,6 @@ const redirects: Record<string, string> = {
   "/post/unlocking-efficiency-in-reverse-logistics-management": "/services/managed-asset-custody/",
   "/post/maximize-returns-with-smart-reverse-logistics-practices": "/services/managed-asset-custody/",
   "/post/key-strategies-for-effective-reverse-logistics-solutions": "/services/managed-asset-custody/",
-  "/get-value-estimate": "/asset-value-estimate/",
-  "/get-value-estimate/": "/asset-value-estimate/",
 };
 
 export const config = {
@@ -25,8 +23,6 @@ export const config = {
     "/post/unlocking-efficiency-in-reverse-logistics-management",
     "/post/maximize-returns-with-smart-reverse-logistics-practices",
     "/post/key-strategies-for-effective-reverse-logistics-solutions",
-    "/get-value-estimate",
-    "/get-value-estimate/",
   ],
 };
 
