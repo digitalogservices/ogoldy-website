@@ -9,6 +9,7 @@ const legacyDestinations = new Set([
   "/services/scrap-disposal-purchase/",
   "/services/managed-asset-custody/",
   "/asset-value-estimate/",
+  "/get-value-estimate/",
 ]);
 
 // The exact production hostname and an explicit Control-approved environment flag
