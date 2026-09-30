@@ -52,7 +52,6 @@ export function SiteFooter() {
       </div>
       <div className="section-shell footer-bottom">
         <span>© {new Date().getFullYear()} Ogoldy Enterprises</span>
-        <span>V9 staging preview · Noindex</span>
       </div>
       <a className="whatsapp-float" href="https://wa.me/918826207270?text=Hello%20Ogoldy%2C%20I%20want%20to%20discuss%20an%20enterprise%20asset%20requirement." target="_blank" rel="noreferrer" aria-label="Discuss a requirement on WhatsApp">WhatsApp</a>
     </footer>
