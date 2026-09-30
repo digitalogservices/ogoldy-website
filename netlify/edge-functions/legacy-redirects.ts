@@ -1,6 +1,4 @@
 const redirects: Record<string, string> = {
-  "/get-value-estimate": "/asset-value-estimate/",
-  "/get-value-estimate/": "/asset-value-estimate/",
   "/services": "/services/",
   "/about-us": "/about/",
   "/contact": "/contact/",
@@ -17,8 +15,6 @@ const gonePaths = new Set(["/blog", "/accessibility-statement"]);
 
 export const config = {
   path: [
-    "/get-value-estimate",
-    "/get-value-estimate/",
     "/blog",
     "/accessibility-statement",
     "/services",
