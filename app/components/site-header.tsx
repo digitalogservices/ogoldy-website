@@ -9,7 +9,7 @@ export function SiteHeader() {
     <header className="site-header">
       <div className="nav-shell">
         <Link className="brand" href="/" aria-label="Ogoldy home">
-          <Image src="/ogoldy-wordmark.png" alt="OGOLDY" width={640} height={132} priority />
+          <Image src="/ogoldy-wordmark.png" alt="OGOLDY" width={640} height={132} sizes="(max-width: 600px) 116px, 142px" priority />
         </Link>
         <button
           className="menu-button"
