@@ -5,13 +5,11 @@ import "./v5.css";
 import "./v6.css";
 import "./v9.css";
 import { Analytics } from "./components/analytics";
-import { headers } from "next/headers";
 import Script from "next/script";
 
-export async function generateMetadata(): Promise<Metadata> {
-  const host = (await headers()).get("host")?.toLowerCase().split(":")[0];
-  const indexable = host === "www.ogoldy.com" && process.env.OGOLDY_INDEXATION_APPROVED === "true";
-  return {
+const indexable = process.env.OGOLDY_INDEXATION_APPROVED === "true";
+
+export const metadata: Metadata = {
   metadataBase: new URL("https://www.ogoldy.com"),
   title: "Ogoldy | Enterprise Asset Transition, Custody & Liquidation",
   description:
@@ -40,7 +38,6 @@ export async function generateMetadata(): Promise<Metadata> {
     shortcut: "/favicon.svg",
   },
 };
-}
 
 const identitySchema = {
   "@context": "https://schema.org",
