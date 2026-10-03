@@ -1,10 +1,8 @@
 "use client";
 import Link from "next/link";
-import { useRef, useState } from "react";
 import { ArrowRight, Camera, Check, MapPin, PackageCheck, Truck } from "lucide-react";
 
 const workflow=["Capture","Classify / specify","Hold / track","Request / redeploy","Move","Receive","Review economics","Sell / scrap / close"];
-const missingLabels:Record<string,string>={replacementValue:"replacement value",storageCost:"monthly holding cost",redeploymentCost:"redeployment cost",resaleEstimate:"resale estimate",scrapEstimate:"scrap estimate"};
 
 export function SeeIdleShowcase({compact=false}:{compact?:boolean}){
   return <section className={compact?"seeidle-section compact":"seeidle-section"}><div className="section-shell">
@@ -25,48 +23,4 @@ export function SeeIdleShowcase({compact=false}:{compact?:boolean}){
   </div></section>;
 }
 
-export function AssetDecisionTool(){
-  const started=useRef(false);
-  const lastCompleted=useRef("");
-  const [result,setResult]=useState<null|{decision:string;reasons:string[];missing:string[]}>(null);
-  function submit(e:React.FormEvent<HTMLFormElement>){
-    e.preventDefault();
-    const d=new FormData(e.currentTarget);
-    const fingerprint=JSON.stringify([...d.entries()]);
-    const n=(k:string)=>Number(d.get(k)||0);
-    const condition=String(d.get("condition"));
-    const reuse=n("reuseHorizon"), replacement=n("replacementValue"), storage=n("storageCost"), move=n("redeploymentCost"), resale=n("resaleEstimate"), scrap=n("scrapEstimate");
-    const missing=["replacementValue","storageCost","redeploymentCost","resaleEstimate","scrapEstimate"].filter(k=>!n(k)).map(k=>missingLabels[k]);
-    let decision="Human review required";
-    const reasons:string[]=[];
-    if(condition==="poor"&&scrap>0&&scrap>=resale){decision="Scrap / recycle";reasons.push("Condition is poor and the stated scrap estimate is at least the resale estimate.");}
-    else if(reuse>0&&reuse<=6&&replacement>0&&move>0&&move<replacement*.45){decision="Redeploy";reasons.push("Expected reuse is within six months and stated movement cost is below 45% of replacement value.");}
-    else if(reuse>12&&resale>scrap&&resale>0){decision="Sell / liquidate";reasons.push("Reuse is more than twelve months away and stated resale value exceeds scrap value.");}
-    else if(reuse>0&&reuse<=12&&storage>0&&replacement>0&&storage*reuse<replacement*.25){decision="Continue holding";reasons.push("Expected holding cost to reuse is below 25% of stated replacement value.");}
-    else reasons.push("The supplied values do not meet a configured decision threshold, so an operating review is safer.");
-    setResult({decision,reasons,missing});
-    if(lastCompleted.current!==fingerprint){
-      lastCompleted.current=fingerprint;
-      const decisionResult=decision==="Continue holding"?"hold":decision==="Redeploy"?"redeploy":decision==="Sell / liquidate"?"sell":decision==="Scrap / recycle"?"scrap":"human_review";
-      window.dataLayer=window.dataLayer||[];
-      window.dataLayer.push({event:"asset_decision_tool_completed",page_path:location.pathname,tool_version:"1",decision_result:decisionResult});
-    }
-    started.current=false;
-  }
-  function start(e:React.FormEvent<HTMLFormElement>){
-    if(started.current||!(e.target as HTMLInputElement).value)return;
-    started.current=true;
-    lastCompleted.current="";
-    window.dataLayer=window.dataLayer||[];
-    window.dataLayer.push({event:"asset_decision_tool_started",page_path:location.pathname,tool_version:"1"});
-  }
-  return <div className="decision-tool"><form onSubmit={submit} onInput={start}><div className="tool-grid">
-    <label>Asset / category<input name="asset" required/></label><label>Quantity<input name="quantity" type="number" min="1" required/></label>
-    <label>Age (years)<input name="age" type="number" min="0" step="0.5"/></label><label>Condition<select name="condition" required><option value="">Select</option><option value="good">Good / reusable</option><option value="fair">Fair / repairable</option><option value="poor">Poor / end-of-life</option></select></label>
-    <label>Current location<input name="location" required/></label><label>Expected reuse horizon (months)<input name="reuseHorizon" type="number" min="0"/></label>
-    <label>Replacement value (₹)<input name="replacementValue" type="number" min="0"/></label><label>Monthly storage / custody (₹)<input name="storageCost" type="number" min="0"/></label>
-    <label>Redeployment cost (₹)<input name="redeploymentCost" type="number" min="0"/></label><label>Resale estimate (₹)<input name="resaleEstimate" type="number" min="0"/></label>
-    <label>Scrap estimate (₹)<input name="scrapEstimate" type="number" min="0"/></label>
-  </div><button className="button button-primary">Review the decision</button></form>
-  {result&&<div className="tool-result" aria-live="polite"><span>Preliminary rule-based result</span><h2>{result.decision}</h2>{result.reasons.map(x=><p key={x}>{x}</p>)}<h3>Assumptions</h3><p>Thresholds compare stated values only: redeploy below 45% of replacement value; hold where expected holding cost stays below 25%; sell when reuse is over 12 months away and resale exceeds scrap.</p>{result.missing.length>0&&<><h3>Missing data</h3><p>{result.missing.join(", ")}. Add these for a stronger review.</p></>}<Link className="button button-secondary" href={`/contact?decision=${encodeURIComponent(result.decision)}`}>Want Ogoldy to validate this? <ArrowRight size={18}/></Link></div>}</div>;
-}
+export { AssetDecisionTool } from "./asset-decision-tool";

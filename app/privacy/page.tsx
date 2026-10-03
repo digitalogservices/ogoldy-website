@@ -23,7 +23,12 @@ export default function Privacy() {
           <p>
             Company and contact details, site location, requirement details, and
             files you choose to upload such as BOQs, asset lists and site
-            photographs.
+            photographs. When you ask Ogoldy to validate a decision-tool assessment,
+            we also receive the asset context, condition, reuse readiness and horizon,
+            financial estimates, unknown flags, preliminary recommendation, reasoning
+            and assumptions submitted with that enquiry. The tool keeps this assessment
+            in your browser session to preserve the enquiry handoff through refresh or back.
+            Raw assessment inputs are not sent to Google Analytics.
           </p>
           <h2>Why we use it</h2>
           <p>
@@ -31,6 +36,10 @@ export default function Privacy() {
             response, arrange a survey where required, and communicate about the
             enquiry.
           </p>
+          <h2>Optional marketing updates</h2>
+          <p>Assessment enquiries have a separate, optional email marketing choice.
+            It starts unchecked. Your enquiry can be submitted without opting in;
+            you can unsubscribe from marketing updates at any time.</p>
           <h2>Website measurement</h2>
           <p>
             We record landing page, referral and campaign parameters, and

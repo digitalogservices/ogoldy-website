@@ -2,6 +2,9 @@
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 import { Upload, CheckCircle2 } from "lucide-react";
+import { AssessmentSummary } from "../components/assessment-summary";
+import { loadAssessment, storageRead, type Assessment } from "../../lib/asset-decision/session";
+import { displayNumeric, conditions, readiness, numericLabels } from "../../lib/asset-decision/model";
 
 export function EstimateForm() {
   const startedAt = useRef(0);
@@ -11,9 +14,17 @@ export function EstimateForm() {
   >("idle");
   const [message, setMessage] = useState("");
   const [assetType, setAssetType] = useState("");
+  const [assessment, setAssessment] = useState<Assessment | null>(null);
+  const [assessmentMissing, setAssessmentMissing] = useState(false);
 
   useEffect(() => {
     startedAt.current = Date.now();
+    if (window.location.pathname.startsWith("/contact") && new URLSearchParams(window.location.search).get("decision") === "assessment_v2") {
+      const saved = loadAssessment();
+      // eslint-disable-next-line react-hooks/set-state-in-effect -- Read browser-only session data after the server render.
+      setAssessment(saved);
+      setAssessmentMissing(!saved);
+    }
   }, []);
 
   async function submit(e: React.FormEvent<HTMLFormElement>) {
@@ -25,9 +36,9 @@ export function EstimateForm() {
     const data = new FormData(e.currentTarget);
     data.set("form-name", "ogoldy-enterprise-enquiry");
     data.set("submitted_at", new Date().toISOString());
-    data.set("landing_page", sessionStorage.getItem("ogoldy_landing") || window.location.pathname);
+    data.set("landing_page", storageRead("ogoldy_landing") || window.location.pathname);
     data.set("source_page", window.location.pathname);
-    const rawReferrer = sessionStorage.getItem("ogoldy_referrer") || document.referrer;
+    const rawReferrer = storageRead("ogoldy_referrer") || document.referrer;
     try {
       const url = new URL(rawReferrer);
       data.set("referrer", `${url.origin}${url.pathname}`);
@@ -36,14 +47,44 @@ export function EstimateForm() {
     }
     const query = new URLSearchParams(window.location.search);
     for (const key of ["source", "medium", "campaign", "content", "term"])
-      data.set(`utm_${key}`, query.get(`utm_${key}`) || sessionStorage.getItem(`ogoldy_utm_${key}`) || "");
-    const decision = ({
+      data.set(`utm_${key}`, query.get(`utm_${key}`) || storageRead(`ogoldy_utm_${key}`) || "");
+    const legacyDecision = ({
       "Continue holding": "hold",
       Redeploy: "redeploy",
       "Sell / liquidate": "sell",
       "Scrap / recycle": "scrap",
       "Human review required": "human_review",
     } as Record<string, string>)[query.get("decision") || ""] || "";
+    const decision = assessment?.result.decision || legacyDecision;
+    if (assessmentMissing) {
+      setStatus("error"); setMessage("The saved assessment is unavailable. Return to the tool to review it again");
+      submitting.current = false; return;
+    }
+    if (assessment) {
+      data.set("assessment_payload", JSON.stringify(assessment));
+      data.set("assessment_summary", [
+        `Asset / category: ${assessment.inputs.asset}`,
+        `Quantity: ${displayNumeric(assessment.inputs.quantity)}`,
+        `Location: ${assessment.inputs.location || "Not supplied"}`,
+        `Age (years): ${displayNumeric(assessment.inputs.age)}`,
+        `Condition: ${conditions[assessment.inputs.condition]}`,
+        `Reuse readiness: ${readiness[assessment.inputs.reuseReadiness]}`,
+        ...Object.entries(numericLabels).map(([key,label]) => `${label}: ${displayNumeric(assessment.inputs[key as keyof typeof numericLabels], key !== "reuseHorizon")}`),
+        `Recommendation: ${assessment.result.recommendation}`, `Data quality: ${assessment.result.data_quality}`,
+        "Why:", ...assessment.result.reasons, "Economics considered:", ...assessment.result.economics,
+        "Missing / uncertain information:", ...assessment.result.missing,
+        "What could change the recommendation:", ...assessment.result.couldChange,
+        "Assumptions:", ...assessment.result.assumptions,
+      ].join("\n"));
+      data.set("tool_version", assessment.tool_version);
+      data.set("data_quality", assessment.result.data_quality);
+      data.set("assetType", assessment.inputs.asset);
+      data.set("quantity", displayNumeric(assessment.inputs.quantity));
+      if (assessment.inputs.location) data.set("location", assessment.inputs.location);
+      for (const [key,value] of Object.entries(assessment.attribution)) data.set(key,value);
+      data.set("enquiry_page", window.location.pathname);
+      data.set("marketing_consent", data.get("marketing_consent") === "yes" ? "yes" : "no");
+    }
     const formType = decision ? "decision_tool" : window.location.pathname.startsWith("/contact") ? "contact" : "value_estimate";
     data.set("form_type", formType);
     data.set("decision_result", decision);
@@ -94,7 +135,7 @@ export function EstimateForm() {
     );
 
   return (
-    <form className="estimate-form" name="ogoldy-enterprise-enquiry" method="POST" action="/netlify-forms.html" encType="multipart/form-data" data-netlify-honeypot="bot-field" onSubmit={submit}>
+    <form className={assessment ? "estimate-form assessment-enquiry" : "estimate-form"} name="ogoldy-enterprise-enquiry" method="POST" action="/netlify-forms.html" encType="multipart/form-data" data-netlify-honeypot="bot-field" onSubmit={submit}>
       <input type="hidden" name="form-name" value="ogoldy-enterprise-enquiry" />
       <input type="hidden" name="landing_page" />
       <input type="hidden" name="source_page" />
@@ -113,6 +154,8 @@ export function EstimateForm() {
           <input name="bot-field" tabIndex={-1} autoComplete="off" />
         </label>
       </div>
+      {assessmentMissing && <p className="form-error" role="alert">Your saved assessment is unavailable in this session. <Link href="/asset-decision-tool">Return to the tool</Link> to review it again.</p>}
+      {assessment && <AssessmentSummary assessment={assessment}/>}
       <div className="form-grid">
         <label>
           Company
@@ -153,11 +196,11 @@ export function EstimateForm() {
             maxLength={20}
           />
         </label>
-        <label>
-          City / site location
-          <input required name="location" maxLength={160} />
-        </label>
-        <label>
+        {!assessment?.inputs.location && <label>
+          {assessment ? "City / site location (optional missing context)" : "City / site location"}
+          <input required={!assessment} name="location" maxLength={160} />
+        </label>}
+        {!assessment && <label>
           Asset or requirement type
           <select
             required
@@ -180,8 +223,8 @@ export function EstimateForm() {
             <option>Warehouse relocation</option>
             <option>Other</option>
           </select>
-        </label>
-        {assetType.toLowerCase().includes("relocation") && (
+        </label>}
+        {!assessment && assetType.toLowerCase().includes("relocation") && (
           <fieldset className="wide relocation-fields">
             <legend>Relocation details</legend>
             <div className="form-grid">
@@ -243,7 +286,7 @@ export function EstimateForm() {
             </div>
           </fieldset>
         )}
-        <label className="wide">
+        {!assessment && <label className="wide">
           Approximate quantity or site size
           <input
             required
@@ -251,11 +294,11 @@ export function EstimateForm() {
             maxLength={200}
             placeholder="For example: 450 workstations or 20,000 sq ft"
           />
-        </label>
+        </label>}
         <label className="wide">
-          Notes
+          {assessment ? "Additional information (optional)" : "Notes"}
           <textarea
-            required
+            required={!assessment}
             name="notes"
             maxLength={3000}
             rows={5}
@@ -295,6 +338,10 @@ export function EstimateForm() {
           <Link href="/privacy">privacy notice</Link>.
         </span>
       </label>
+      {assessment && <label className="consent">
+        <input type="checkbox" name="marketing_consent" value="yes" />
+        <span><small>Optional</small><br/>Email me occasional Ogoldy updates, project insights and service information. I can unsubscribe at any time.</span>
+      </label>}
       {status === "error" && (
         <p className="form-error" role="alert">
           {message}. Please retry or email growth@ogoldy.com.
@@ -302,7 +349,7 @@ export function EstimateForm() {
       )}
       <button
         className="button button-primary submit-button"
-        disabled={status === "sending"}
+        disabled={status === "sending" || assessmentMissing}
       >
         {status === "sending" ? "Submitting…" : "Submit for assessment"}
       </button>
