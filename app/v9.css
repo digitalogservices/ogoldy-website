@@ -30,3 +30,7 @@
 .cookie-settings:focus-visible,.privacy-banner button:focus-visible,.privacy-preferences button:focus-visible,.privacy-preferences input:focus-visible{outline:3px solid #b45100;outline-offset:3px}
 .scale-counter .scale-number{font-size:inherit;font-variant-numeric:tabular-nums;display:inline-block;min-width:10.3ch}
 @media(max-width:600px){.hero-chain{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));align-items:start;gap:1rem;white-space:normal;overflow:visible;counter-reset:operating-step}.hero-chain>i{display:none}.hero-chain>span{min-width:0;line-height:1.4;counter-increment:operating-step}.hero-chain>span::before{content:counter(operating-step,decimal-leading-zero);display:block;color:#ef7d00;font-size:.75rem;margin-bottom:.4rem}.privacy-actions{grid-template-columns:1fr}.privacy-banner{padding:1rem}.seeidle-actions{flex-direction:column;align-items:stretch}.seeidle-actions .button{white-space:normal}.scale-counter strong{font-size:clamp(2.5rem,10vw,3.3rem)}}
+
+/* Approved homepage Sections 1–2 operating chain; retain numbered mobile order. */
+.why-ogoldy{grid-template-columns:1fr;gap:2rem}.why-ogoldy>div:first-child{max-width:900px}.why-ogoldy .hero-chain{margin-top:0;flex-wrap:wrap;overflow:visible;white-space:normal;border-color:#ddd;gap:1rem}.why-ogoldy .hero-chain>span{line-height:1.4}
+@media(max-width:600px){.why-ogoldy .hero-chain{gap:1rem}.v9-hero .eyebrow{line-height:1.5}}
