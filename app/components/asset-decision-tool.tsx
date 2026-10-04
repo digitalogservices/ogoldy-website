@@ -2,6 +2,7 @@
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 import { ArrowRight } from "lucide-react";
+import { pushAnalytics } from "../../lib/consent";
 import { conditions, readiness, numericLabels, parseNumeric, evaluateAssessment, inputSchema, qualityLabels, disclaimer, type AssessmentInputs } from "../../lib/asset-decision/model";
 import { captureAttribution, makeAssessment, saveAssessment, loadAssessment, clearAssessment, saveDraft, loadDraft, toolEvent, type Assessment } from "../../lib/asset-decision/session";
 
@@ -38,8 +39,7 @@ export function AssetDecisionTool() {
     clearAssessment(); setAssessment(null); setMessage("");
     if (!started.current) {
       started.current = true; lastCompleted.current = "";
-      window.dataLayer = window.dataLayer || [];
-      window.dataLayer.push(toolEvent("asset_decision_tool_started"));
+      pushAnalytics(toolEvent("asset_decision_tool_started"));
     }
   }
   function submit(e: React.FormEvent<HTMLFormElement>) {
@@ -59,8 +59,7 @@ export function AssetDecisionTool() {
       setMessage(saveAssessment(next) ? "" : "Session storage is unavailable. Keep this tab open while continuing to your enquiry; refresh may clear the assessment.");
       const fingerprint = JSON.stringify(inputs);
       if (lastCompleted.current !== fingerprint) {
-        window.dataLayer = window.dataLayer || [];
-        window.dataLayer.push(toolEvent("asset_decision_tool_completed", result));
+        pushAnalytics(toolEvent("asset_decision_tool_completed", result));
         lastCompleted.current = fingerprint;
       }
       started.current = false;

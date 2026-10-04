@@ -34,6 +34,7 @@ export function EstimateForm() {
     setStatus("sending");
     setMessage("");
     const data = new FormData(e.currentTarget);
+    data.set("marketing_consent", data.get("marketing_consent") === "yes" ? "yes" : "no");
     data.set("form-name", "ogoldy-enterprise-enquiry");
     data.set("submitted_at", new Date().toISOString());
     data.set("landing_page", storageRead("ogoldy_landing") || window.location.pathname);
@@ -335,13 +336,13 @@ export function EstimateForm() {
         <span>
           I have authority to share these business details and files. Ogoldy may
           use them to assess and respond to this enquiry as described in the{" "}
-          <Link href="/privacy">privacy notice</Link>.
+          <Link href="/privacy">Privacy notice</Link>.
         </span>
       </label>
-      {assessment && <label className="consent">
+      <label className="consent">
         <input type="checkbox" name="marketing_consent" value="yes" />
         <span><small>Optional</small><br/>Email me occasional Ogoldy updates, project insights and service information. I can unsubscribe at any time.</span>
-      </label>}
+      </label>
       {status === "error" && (
         <p className="form-error" role="alert">
           {message}. Please retry or email growth@ogoldy.com.

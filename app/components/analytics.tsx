@@ -2,6 +2,7 @@
 
 import { useEffect, useRef } from "react";
 import { usePathname } from "next/navigation";
+import { pushAnalytics } from "../../lib/consent";
 
 declare global {
   interface Window {
@@ -27,8 +28,8 @@ function campaign() {
 }
 
 function push(event: string, fields: Record<string, string> = {}) {
-  window.dataLayer = window.dataLayer || [];
-  window.dataLayer.push({ event, page_path: location.pathname, ...campaign(), ...fields });
+  if (!window.ogoldyAnalyticsAllowed) return;
+  pushAnalytics({ event, page_path: location.pathname, ...campaign(), ...fields });
 }
 
 function placement(link: HTMLAnchorElement) {
@@ -54,6 +55,15 @@ export function Analytics() {
       sessionStorage.setItem("ogoldy_landing", location.pathname);
     if (sessionStorage.getItem("ogoldy_referrer") === null)
       sessionStorage.setItem("ogoldy_referrer", referrer());
+    // Functional enquiry attribution remains available with analytics denied.
+    campaign();
+    const consent = () => {
+      if (!window.ogoldyAnalyticsAllowed) { lastPage.current = null; return; }
+      if (lastPage.current === location.pathname) return;
+      lastPage.current = location.pathname;
+      push("page_view", { page_location: `${location.origin}${location.pathname}` });
+    };
+    document.addEventListener("ogoldy:analytics_consent", consent);
     const startedForms = new WeakSet<HTMLFormElement>();
     const click = (e: MouseEvent) => {
       const link = (e.target as Element).closest("a");
@@ -100,6 +110,7 @@ export function Analytics() {
     document.addEventListener("input", start);
     document.addEventListener("ogoldy:lead_submitted", submitted);
     return () => {
+      document.removeEventListener("ogoldy:analytics_consent", consent);
       document.removeEventListener("click", click);
       document.removeEventListener("input", start);
       document.removeEventListener("ogoldy:lead_submitted", submitted);
@@ -107,7 +118,7 @@ export function Analytics() {
   }, []);
 
   useEffect(() => {
-    if (!pathname || lastPage.current === pathname) return;
+    if (!window.ogoldyAnalyticsAllowed || !pathname || lastPage.current === pathname) return;
     lastPage.current = pathname;
     push("page_view", { page_location: `${location.origin}${pathname}` });
   }, [pathname]);

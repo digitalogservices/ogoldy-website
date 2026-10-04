@@ -19,7 +19,7 @@ export function SeeIdleShowcase({compact=false}:{compact?:boolean}){
       </div>
     </div>
     {!compact&&<><div className="seeidle-flow">{workflow.map((x,i)=><div key={x}><span>{String(i+1).padStart(2,"0")}</span><strong>{x}</strong></div>)}</div><div className="economics-strip"><div><b>Replacement value</b><span>What would equivalent assets cost?</span></div><div><b>Holding cost</b><span>Storage, custody and insurance timing</span></div><div><b>Next-use cost</b><span>Transport and redeployment</span></div><div><b>Recovery range</b><span>Resale or scrap estimate</span></div></div></>}
-    <Link className="button button-primary" href="/asset-decision-tool">Should I store, redeploy, sell or scrap? <ArrowRight size={18}/></Link>
+    <div className="button-row seeidle-actions"><Link className="button button-primary" href="/asset-decision-tool">Should I store, redeploy, sell or scrap? <ArrowRight size={18}/></Link><a className="button button-dark" href="https://seeidle.com">Visit SeeIdle <ArrowRight size={18}/></a></div>
   </div></section>;
 }
 

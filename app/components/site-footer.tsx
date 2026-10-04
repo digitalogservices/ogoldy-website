@@ -1,5 +1,6 @@
 import Link from "next/link";
 import Image from "next/image";
+import { CookieSettings } from "./cookie-settings";
 export function SiteFooter() {
   return (
     <footer className="site-footer">
@@ -29,6 +30,7 @@ export function SiteFooter() {
           <Link href="/contact">Contact</Link>
           <Link href="/asset-value-estimate">Value estimate</Link>
           <Link href="/privacy">Privacy</Link>
+          <CookieSettings />
         </div>
         <div>
           <strong>India-wide solutions</strong>
