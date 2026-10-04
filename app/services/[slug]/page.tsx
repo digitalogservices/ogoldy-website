@@ -183,6 +183,11 @@ export default async function ServicePage({
                 <article key={section.heading}>
                   <h2>{section.heading}</h2>
                   <p>{section.text}</p>
+                  {section.contextualLinks?.map((link) => (
+                    <p key={link.href}>
+                      {link.before}<Link href={link.href}>{link.label}</Link>{link.after}
+                    </p>
+                  ))}
                 </article>
               ))}
             </div>

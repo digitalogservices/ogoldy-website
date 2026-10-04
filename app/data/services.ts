@@ -12,7 +12,7 @@ export type Service = {
     meta: string;
     h1: string;
     lead: string;
-    sections: { heading: string; text: string }[];
+    sections: { heading: string; text: string; contextualLinks?: { before: string; label: string; href: string; after: string }[] }[];
     proof: { label: string; detail: string; href: string }[];
     links: { label: string; href: string }[];
     cta: string;
