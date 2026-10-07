@@ -16,6 +16,9 @@ export const metadata: Metadata = {
   description:
     "Pan-India dismantling, de-fitment, asset movement, custody, redeployment, scrap purchase and enterprise liquidation.",
   applicationName: "Ogoldy",
+  verification: {
+    google: "b8K4qZrwNcpNEejI1d60SlghlmkeocX1L1WTxe6YCuI",
+  },
   alternates: { canonical: "/" },
   robots: { index: indexable, follow: indexable, noarchive: !indexable },
   openGraph: {
